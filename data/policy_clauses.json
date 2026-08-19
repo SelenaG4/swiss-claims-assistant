@@ -1,0 +1,92 @@
+[
+  {
+    "id": "DE-DEDUCTIBLE-01",
+    "language": "de",
+    "topic": "deductible",
+    "text": "Der Selbstbehalt bei Wasserschaden betraegt CHF 500 pro Schadenfall, sofern in der Police nichts anderes vereinbart wurde.",
+    "translations": {
+      "en": "The deductible for water damage is CHF 500 per claim, unless otherwise agreed in the policy.",
+      "fr": "La franchise en cas de dégât d'eau s'élève à CHF 500 par sinistre, sauf accord contraire dans la police."
+    }
+  },
+  {
+    "id": "DE-DEADLINE-01",
+    "language": "de",
+    "topic": "reporting_deadline",
+    "text": "Die Meldepflicht fuer einen Schaden betraegt 5 Tage ab Kenntnisnahme; verspaetete Schadenmeldungen koennen die Deckung reduzieren.",
+    "translations": {
+      "en": "A claim must be reported within 5 days of becoming aware of it; late claim reports may reduce coverage.",
+      "fr": "L'obligation de déclarer un sinistre est de 5 jours à compter de sa constatation ; une déclaration tardive peut réduire la couverture."
+    }
+  },
+  {
+    "id": "DE-BUILDING-01",
+    "language": "de",
+    "topic": "building_code",
+    "text": "Bei Gebaeudeschaeden im Kanton Zuerich gelten die kantonalen Brandschutzvorschriften der Gebaeudeversicherung Kanton Zuerich (GVZ).",
+    "translations": {
+      "en": "For building damage in the canton of Zurich, the cantonal fire-safety regulations of the Gebäudeversicherung Kanton Zürich (GVZ) apply.",
+      "fr": "En cas de dommages aux bâtiments dans le canton de Zurich, les prescriptions cantonales de protection incendie de la Gebäudeversicherung Kanton Zürich (GVZ) s'appliquent."
+    }
+  },
+  {
+    "id": "FR-LIABILITY-01",
+    "language": "fr",
+    "topic": "liability",
+    "text": "La responsabilite civile couvre les dommages causes a des tiers jusqu'a concurrence du plafond indique dans la police d'assurance.",
+    "translations": {
+      "en": "Liability coverage covers damage caused to third parties up to the limit stated in the insurance policy.",
+      "de": "Die Haftpflichtversicherung deckt Schäden, die Dritten zugefügt werden, bis zur in der Police angegebenen Deckungssumme."
+    }
+  },
+  {
+    "id": "FR-PREMIUM-01",
+    "language": "fr",
+    "topic": "premium_adjustment",
+    "text": "La prime peut etre ajustee annuellement en fonction du nombre de sinistres declares au cours des trois dernieres annees.",
+    "translations": {
+      "en": "The premium may be adjusted annually based on the number of claims reported over the past three years.",
+      "de": "Die Prämie kann jährlich angepasst werden, abhängig von der Anzahl der gemeldeten Schadenfälle in den letzten drei Jahren."
+    }
+  },
+  {
+    "id": "FR-BUILDING-01",
+    "language": "fr",
+    "topic": "building_code",
+    "text": "Dans le canton de Vaud, les dommages aux batiments sont soumis aux normes cantonales de l'Etablissement Cantonal d'Assurance (ECA).",
+    "translations": {
+      "en": "In the canton of Vaud, building damage is subject to the cantonal standards of the Etablissement Cantonal d'Assurance (ECA).",
+      "de": "Im Kanton Waadt unterliegen Gebäudeschäden den kantonalen Normen der Etablissement Cantonal d'Assurance (ECA)."
+    }
+  },
+  {
+    "id": "EN-SUVA-01",
+    "language": "en",
+    "topic": "accident_insurance",
+    "text": "Workplace accident coverage is coordinated with SUVA (the Swiss National Accident Insurance Fund) for all employees working more than 8 hours per week.",
+    "translations": {
+      "de": "Die Deckung von Arbeitsunfällen erfolgt in Koordination mit der SUVA (Schweizerische Unfallversicherungsanstalt) für alle Angestellten, die mehr als 8 Stunden pro Woche arbeiten.",
+      "fr": "La couverture des accidents du travail est coordonnée avec la SUVA (Caisse nationale suisse d'assurance en cas d'accidents) pour tous les employés travaillant plus de 8 heures par semaine."
+    }
+  },
+  {
+    "id": "EN-AHV-01",
+    "language": "en",
+    "topic": "pension_contribution",
+    "text": "AHV/AVS old-age and survivors' insurance contributions are deducted at source and are separate from any private claims coverage under this policy.",
+    "translations": {
+      "de": "Beiträge an die AHV (Alters- und Hinterlassenenversicherung) werden direkt an der Quelle abgezogen und sind unabhängig von einer privaten Schadendeckung im Rahmen dieser Police.",
+      "fr": "Les cotisations AVS (assurance-vieillesse et survivants) sont prélevées à la source et sont indépendantes de toute couverture de sinistre privée prévue par la présente police."
+    }
+  },
+  {
+    "id": "EN-CLAIM-PROCESS-01",
+    "language": "en",
+    "topic": "claim_process",
+    "text": "Claims under CHF 1000 with complete documentation may be eligible for fast-track approval without a full adjuster review.",
+    "translations": {
+      "de": "Schadenfälle unter CHF 1000 mit vollständiger Dokumentation können ohne vollständige Prüfung durch einen Sachbearbeiter beschleunigt genehmigt werden.",
+      "fr": "Les sinistres inférieurs à CHF 1000 avec un dossier complet peuvent bénéficier d'une approbation accélérée sans examen complet par un gestionnaire de sinistres."
+    }
+  }
+]

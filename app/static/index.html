@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Swiss Claims &amp; Compliance Assistant</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page:        #f9f9f7;
+    --surface:     #fcfcfb;
+    --ink:         #0b0b0b;
+    --ink-2:       #52514e;
+    --ink-muted:   #898781;
+    --border:      rgba(11,11,11,0.10);
+    --accent:      #2a78d6;
+    --accent-dark: #184f95;
+    --good:        #0ca30c;
+    --warning:     #fab219;
+    --serious:     #ec835a;
+    --critical:    #d03b3b;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    line-height: 1.5;
+  }
+  .wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+  header.page-header {
+    margin-bottom: 32px;
+  }
+  header.page-header h1 {
+    font-size: 26px;
+    margin: 0 0 8px;
+  }
+  header.page-header p {
+    color: var(--ink-2);
+    margin: 0;
+    max-width: 620px;
+  }
+  .badge-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--ink-2);
+  }
+
+  /* Stat tiles */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .stat-tile {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .stat-tile .label {
+    font-size: 12px;
+    color: var(--ink-muted);
+    margin-bottom: 6px;
+  }
+  .stat-tile .value {
+    font-size: 28px;
+    font-weight: 600;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  .card h2 {
+    font-size: 17px;
+    margin: 0 0 4px;
+  }
+  .card .card-sub {
+    color: var(--ink-2);
+    font-size: 14px;
+    margin: 0 0 18px;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--ink-2);
+  }
+  textarea, select, input[type=text], input[type=file] {
+    width: 100%;
+    font-family: inherit;
+    font-size: 14px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: white;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+  textarea { min-height: 90px; resize: vertical; }
+  .field-row { display: flex; gap: 16px; flex-wrap: wrap; }
+  .field-row > div { flex: 1; min-width: 160px; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .btn:hover { background: var(--accent-dark); }
+  .btn.secondary {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--border);
+  }
+  .btn.secondary:hover { background: var(--page); }
+  .btn:disabled { opacity: 0.5; cursor: default; }
+
+  /* Result panel */
+  .result { margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--border); display: none; }
+  .result.show { display: block; }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    margin-bottom: 18px;
+  }
+  .status-badge.good    { background: color-mix(in srgb, var(--good) 14%, white); color: #0a7a0a; }
+  .status-badge.warning { background: color-mix(in srgb, var(--warning) 22%, white); color: #8a5c00; }
+
+  .meter-block { margin-bottom: 18px; }
+  .meter-block .meter-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--ink-2);
+    margin-bottom: 6px;
+  }
+  .meter-track {
+    height: 10px;
+    border-radius: 999px;
+    background: #eee;
+    overflow: hidden;
+  }
+  .meter-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.4s ease;
+  }
+
+  .pii-note {
+    background: var(--page);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 13.5px;
+    color: var(--ink-2);
+    margin-bottom: 18px;
+  }
+  .pii-note strong { color: var(--ink); }
+  .pii-note ul { margin: 8px 0 0; padding-left: 20px; }
+
+  table.extract-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    margin-bottom: 4px;
+  }
+  table.extract-table td {
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  table.extract-table td:first-child {
+    color: var(--ink-muted);
+    width: 45%;
+  }
+  table.extract-table td:last-child {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+
+  .policy-result {
+    margin-top: 18px;
+    padding: 16px 18px;
+    background: var(--page);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .policy-result .lang-note {
+    font-size: 12.5px;
+    color: var(--ink-muted);
+    margin-bottom: 8px;
+  }
+  .policy-result blockquote {
+    margin: 0;
+    font-size: 14.5px;
+    color: var(--ink);
+    border-left: 3px solid var(--accent);
+    padding-left: 12px;
+  }
+
+  .footer-note {
+    font-size: 13px;
+    color: var(--ink-muted);
+    text-align: center;
+    margin-top: 12px;
+  }
+  .footer-note a { color: var(--accent); text-decoration: none; }
+  .footer-note a:hover { text-decoration: underline; }
+
+  .spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 640px) {
+    .stat-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page-header">
+    <h1>Swiss Claims &amp; Compliance Assistant</h1>
+    <p>Turns a claim -- in German, French, or English -- into a personal-data-safe,
+       risk-scored decision in seconds: automatically hides private details,
+       looks up the right policy rule even across languages, and tells you
+       whether it's safe to fast-track or needs a person to look at it.</p>
+    <div class="badge-row">
+      <span class="pill">🇩🇪 🇫🇷 🇬🇧 Multilingual</span>
+      <span class="pill">🔒 Personal data protected automatically</span>
+      <span class="pill">⚙️ Demo project -- synthetic data only</span>
+    </div>
+  </header>
+
+  <div class="stat-row" id="statRow">
+    <div class="stat-tile">
+      <div class="label">Claims processed</div>
+      <div class="value" id="statTotal">–</div>
+    </div>
+    <div class="stat-tile">
+      <div class="label">Fast-tracked automatically</div>
+      <div class="value" id="statApproved">–</div>
+    </div>
+    <div class="stat-tile">
+      <div class="label">Sent to a human reviewer</div>
+      <div class="value" id="statFlagged">–</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Submit a claim</h2>
+    <p class="card-sub">Paste a claim description (any of German, French, or English work) and, optionally, attach an invoice photo.</p>
+
+    <form id="claimForm">
+      <label for="description">Claim description</label>
+      <textarea id="description" name="description" placeholder="e.g. Herr Matthias Keller meldet einen Wasserschaden..."></textarea>
+
+      <div class="field-row">
+        <div>
+          <label for="language">Language</label>
+          <select id="language" name="language">
+            <option value="de" selected>German</option>
+            <option value="fr">French</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+        <div>
+          <label for="invoiceImage">Invoice photo (optional)</label>
+          <input type="file" id="invoiceImage" name="invoice_image" accept="image/*">
+        </div>
+      </div>
+
+      <button type="submit" class="btn" id="submitBtn">Analyze claim</button>
+      <button type="button" class="btn secondary" id="fillExampleBtn">Use example claim</button>
+    </form>
+
+    <div class="result" id="claimResult">
+      <div id="statusBadgeWrap"></div>
+
+      <div class="meter-block">
+        <div class="meter-label">
+          <span>Risk score</span>
+          <span id="riskScoreLabel">–</span>
+        </div>
+        <div class="meter-track"><div class="meter-fill" id="riskMeterFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="pii-note" id="piiNote"></div>
+
+      <div id="invoiceTableWrap"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Ask about policy coverage</h2>
+    <p class="card-sub">Ask in German, French, or English -- the answer comes from whichever language the policy clause happens to be written in, even if it's not the language you asked in.</p>
+
+    <form id="policyForm">
+      <label for="policyQuery">Your question</label>
+      <input type="text" id="policyQuery" name="query" placeholder="e.g. Quelle est la franchise en cas de dégât d'eau ?">
+
+      <label for="policyLanguage">Translate the answer into</label>
+      <select id="policyLanguage" name="answer_language">
+        <option value="">Don't translate -- show the clause's original language</option>
+        <option value="de">German</option>
+        <option value="fr" selected>French</option>
+        <option value="en">English</option>
+      </select>
+
+      <button type="submit" class="btn" id="policySubmitBtn">Search policy</button>
+      <button type="button" class="btn secondary" id="fillPolicyExampleBtn">Use example question</button>
+    </form>
+
+    <div id="policyResultWrap"></div>
+  </div>
+
+  <p class="footer-note">
+    Built as a portfolio demonstration -- no real insurer's data or systems are involved.
+    <br>
+    <a href="/docs">View the technical API documentation →</a>
+  </p>
+
+</div>
+
+<script>
+const EXAMPLE_CLAIM = "Herr Matthias Keller meldet einen Wasserschaden in der Kueche, geboren am 12.03.1985. AHV-Nr: 756.1234.5678.97, IBAN: CH93 0076 2011 6238 5295 7. Kontakt: matthias.keller@example.ch. Schadensumme: CHF 850.00.";
+const EXAMPLE_POLICY_QUERY = "Quelle est la franchise en cas de dégât d'eau ?";
+
+const PII_LABELS = {
+  AHV_NUMBER: "AHV insurance number",
+  IBAN: "bank account number (IBAN)",
+  EMAIL: "email address",
+  PHONE: "phone number",
+  PERSON_NAME: "person's name",
+  DATE_OF_BIRTH: "date of birth",
+  POSTAL_ADDRESS: "home address",
+};
+
+function riskBand(score) {
+  if (score <= 20) return { color: "var(--good)", word: "Low" };
+  if (score <= 60) return { color: "var(--warning)", word: "Medium" };
+  return { color: "var(--critical)", word: "High" };
+}
+
+async function loadSummary() {
+  try {
+    const res = await fetch("/reports/summary");
+    const data = await res.json();
+    document.getElementById("statTotal").textContent = data.total_claims ?? 0;
+    document.getElementById("statApproved").textContent = data.auto_approved ?? 0;
+    document.getElementById("statFlagged").textContent = data.flagged_for_adjuster ?? 0;
+  } catch (e) { /* summary is best-effort on first load */ }
+}
+
+document.getElementById("fillExampleBtn").addEventListener("click", () => {
+  document.getElementById("description").value = EXAMPLE_CLAIM;
+  document.getElementById("language").value = "de";
+});
+
+document.getElementById("fillPolicyExampleBtn").addEventListener("click", () => {
+  document.getElementById("policyQuery").value = EXAMPLE_POLICY_QUERY;
+  document.getElementById("policyLanguage").value = "fr";
+});
+
+document.getElementById("claimForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById("submitBtn");
+  const description = document.getElementById("description").value.trim();
+  if (!description) { document.getElementById("description").focus(); return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Analyzing…';
+
+  const formData = new FormData();
+  formData.append("description", description);
+  formData.append("language", document.getElementById("language").value);
+  const fileInput = document.getElementById("invoiceImage");
+  if (fileInput.files[0]) formData.append("invoice_image", fileInput.files[0]);
+
+  try {
+    const res = await fetch("/claims/ingest", { method: "POST", body: formData });
+    const data = await res.json();
+    renderClaimResult(data);
+    loadSummary();
+  } catch (err) {
+    alert("Something went wrong reaching the assistant. Please try again.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Analyze claim";
+  }
+});
+
+function renderClaimResult(data) {
+  const resultEl = document.getElementById("claimResult");
+  resultEl.classList.add("show");
+
+  const isApproved = data.routing === "auto_approve";
+  const badgeWrap = document.getElementById("statusBadgeWrap");
+  badgeWrap.innerHTML = isApproved
+    ? '<span class="status-badge good">✅ Fast-tracked automatically</span>'
+    : '<span class="status-badge warning">🔍 Sent to a human adjuster</span>';
+
+  const band = riskBand(data.risk_score);
+  document.getElementById("riskScoreLabel").textContent = `${data.risk_score} / 100 (${band.word})`;
+  const fill = document.getElementById("riskMeterFill");
+  fill.style.width = `${data.risk_score}%`;
+  fill.style.background = band.color;
+
+  const entities = data.pii_entities_redacted || {};
+  const count = Object.values(entities).reduce((a, b) => a + b, 0);
+  const piiNote = document.getElementById("piiNote");
+  if (count > 0) {
+    const items = Object.entries(entities)
+      .map(([k, v]) => `<li>${PII_LABELS[k] || k}${v > 1 ? ` × ${v}` : ""}</li>`)
+      .join("");
+    piiNote.innerHTML = `<strong>🔒 ${count} piece${count > 1 ? "s" : ""} of personal data automatically hidden</strong> before this claim was processed:<ul>${items}</ul>`;
+  } else {
+    piiNote.innerHTML = `<strong>🔒 No personal data detected</strong> in this claim text.`;
+  }
+
+  const invoiceWrap = document.getElementById("invoiceTableWrap");
+  if (data.invoice) {
+    invoiceWrap.innerHTML = `
+      <table class="extract-table">
+        <tr><td>Amount read from invoice</td><td>${data.invoice.amount_chf != null ? "CHF " + data.invoice.amount_chf.toFixed(2) : "not found"}</td></tr>
+        <tr><td>Date</td><td>${data.invoice.date || "not found"}</td></tr>
+        <tr><td>Reference number</td><td>${data.invoice.reference_number || "not found"}</td></tr>
+      </table>`;
+  } else {
+    invoiceWrap.innerHTML = "";
+  }
+}
+
+document.getElementById("policyForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById("policySubmitBtn");
+  const query = document.getElementById("policyQuery").value.trim();
+  if (!query) { document.getElementById("policyQuery").focus(); return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Searching…';
+
+  const answerLanguage = document.getElementById("policyLanguage").value || null;
+
+  try {
+    const res = await fetch("/policy-query", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query, top_k: 1, answer_language: answerLanguage }),
+    });
+    const data = await res.json();
+    renderPolicyResult(data);
+  } catch (err) {
+    alert("Something went wrong reaching the assistant. Please try again.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Search policy";
+  }
+});
+
+const LANG_NAMES = { de: "German", fr: "French", en: "English" };
+
+function renderPolicyResult(data) {
+  const wrap = document.getElementById("policyResultWrap");
+  const top = (data.results || [])[0];
+  if (!top) {
+    wrap.innerHTML = `<div class="policy-result">No matching policy clause was found for that question.</div>`;
+    return;
+  }
+
+  const sourceName = LANG_NAMES[top.source_language] || top.source_language;
+  const sourceNote = `This answer was originally written in ${sourceName} -- found automatically, regardless of the language you asked in.`;
+
+  if (data.answer_language && top.translation_mode === "already_in_requested_language") {
+    wrap.innerHTML = `
+      <div class="policy-result">
+        <div class="lang-note">${sourceNote} It's already in the language you asked for, so no translation was needed.</div>
+        <blockquote>${top.text}</blockquote>
+      </div>`;
+  } else if (data.answer_language && top.translated_text) {
+    const targetName = LANG_NAMES[data.answer_language] || data.answer_language;
+    const isReference = top.translation_mode === "reference_translation";
+    const modeNote = isReference
+      ? `Translated below into ${targetName}.`
+      : `Translated below into ${targetName} using a curated glossary of Swiss insurance terms (demo-scope, keyword-level -- not fluent machine translation; words outside the glossary stay untranslated).`;
+    wrap.innerHTML = `
+      <div class="policy-result">
+        <div class="lang-note">${sourceNote} ${modeNote}</div>
+        <blockquote>${top.translated_text}</blockquote>
+        <div class="lang-note" style="margin-top:10px;">Original (${sourceName}): "${top.text}"</div>
+      </div>`;
+  } else {
+    wrap.innerHTML = `
+      <div class="policy-result">
+        <div class="lang-note">${sourceNote}</div>
+        <blockquote>${top.text}</blockquote>
+      </div>`;
+  }
+}
+
+loadSummary();
+</script>
+</body>
+</html>
