@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run test suite
+        run: pytest tests/ -v
+
+      - name: Smoke-test the data + training pipeline
+        # Separate from the unit tests on purpose: this exercises the actual
+        # entry point (scripts/generate_synthetic_claims.py) end to end --
+        # data generation, training, and saving the model artifact -- so a
+        # break in that pipeline fails CI even if no individual unit test
+        # happens to cover it.
+        run: python scripts/generate_synthetic_claims.py
+
+      - name: Smoke-test the MLflow tracked training sweep
+        run: python scripts/train_risk_model.py
+
+      - name: Upload trained model artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: risk-model
+          path: models/risk_model.joblib
+          retention-days: 14

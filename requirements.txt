@@ -10,3 +10,5 @@ numpy==2.1.1
 joblib==1.4.2
 pytesseract==0.3.13
 pillow==10.4.0
+mlflow==3.15.1
+matplotlib==3.10.9

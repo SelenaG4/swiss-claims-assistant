@@ -139,7 +139,7 @@ curl localhost:8000/reports/summary
 ### Tests
 
 ```bash
-pytest tests/ -v   # 25 passed
+pytest tests/ -v   # 28 passed
 ```
 
 Covers: PII redaction across 6 entity types including AHV checksum validation
@@ -149,6 +149,44 @@ extraction against a real rendered invoice image, cross-lingual retrieval
 should surface), risk-model training and CHF-threshold routing logic
 (including that a large claim is flagged even with a low fraud score), and
 the full FastAPI request/response cycle end to end.
+
+### Continuous integration
+
+`.github/workflows/ci.yml` runs on every push and PR to `main`: the full
+`pytest` suite, then two smoke tests that actually exercise the real entry
+points rather than just unit-testing isolated functions --
+`scripts/generate_synthetic_claims.py` (data generation + training end to
+end) and `scripts/train_risk_model.py` (the full MLflow-tracked sweep below).
+The trained model artifact is uploaded from each run (14-day retention) so a
+model produced by CI can be pulled down and inspected without re-running
+anything locally.
+
+### Experiment tracking (MLflow)
+
+`scripts/generate_synthetic_claims.py` trains one model with fixed default
+hyperparameters -- the fast path to get the app running. For the actual
+question of *which* hyperparameters, `scripts/train_risk_model.py` runs a
+small tracked grid (learning rate x max iterations x max depth, 12
+combinations) through MLflow: every run's params, held-out AUC, a
+permutation-importance plot, and the model itself are logged, then the
+best-performing configuration is what actually gets saved to
+`models/risk_model.joblib`.
+
+```bash
+python scripts/train_risk_model.py
+mlflow ui --backend-store-uri sqlite:///mlflow.db   # http://localhost:5000
+```
+
+![MLflow tracking runs for the claims risk model, 13 runs listed with hyperparameters encoded in each run name](docs/mlflow_runs.png)
+
+Tracking is local-file-based (a SQLite file, `mlflow.db` -- MLflow's older
+plain-directory store is deprecated as of MLflow 3), so this needs zero
+external services to run, same principle as everything else in this project
+being demoable with zero external keys. The best run in the screenshot above
+(`lr0.05_iter100_depth5`, held-out AUC 0.832) is a touch better than the
+untuned default (AUC ~0.82 quoted elsewhere in this README) -- a modest gap,
+which is itself an honest finding: on a synthetic dataset with this much
+label noise built in on purpose, hyperparameter tuning has a ceiling.
 
 ### Docker
 
