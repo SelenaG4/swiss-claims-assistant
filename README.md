@@ -161,6 +161,17 @@ The trained model artifact is uploaded from each run (14-day retention) so a
 model produced by CI can be pulled down and inspected without re-running
 anything locally.
 
+**A bug this caught:** the first real CI run failed 4 tests with
+`pytesseract.pytesseract.TesseractNotFoundError`. `pytesseract` is only a
+Python wrapper around the `tesseract` command-line binary -- `pip install`
+gets you the wrapper, not the binary, and `ubuntu-latest` runners don't ship
+it preinstalled. It had worked in every local run because tesseract happened
+to already be on that machine. Fixed by adding a step that installs it via
+apt (`sudo apt-get install -y tesseract-ocr`) before the Python dependencies,
+which is also why this is a *system* dependency worth calling out separately
+from `requirements.txt` -- pip can't install it for you on a fresh machine
+either.
+
 ### Experiment tracking (MLflow)
 
 `scripts/generate_synthetic_claims.py` trains one model with fixed default

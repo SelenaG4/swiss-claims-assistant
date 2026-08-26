@@ -14,6 +14,16 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Install system dependencies (Tesseract OCR)
+        # pytesseract is a thin Python wrapper around the `tesseract` CLI --
+        # pip installing pytesseract does NOT install the binary itself.
+        # ubuntu-latest runners don't have it preinstalled, which is exactly
+        # what caused tests/test_ocr.py and the OCR-dependent API test to
+        # fail with pytesseract.pytesseract.TesseractNotFoundError the first
+        # time this workflow ran (it worked locally only because tesseract
+        # happened to already be installed on that machine).
+        run: sudo apt-get update && sudo apt-get install -y tesseract-ocr
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
