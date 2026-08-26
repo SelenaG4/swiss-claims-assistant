@@ -172,6 +172,15 @@ which is also why this is a *system* dependency worth calling out separately
 from `requirements.txt` -- pip can't install it for you on a fresh machine
 either.
 
+**A second, smaller one:** the committed `models/risk_model.joblib` had been
+pickled with scikit-learn 1.8.0 on a different machine, while
+`requirements.txt` pins 1.5.2 -- `pytest` ran fine but scikit-learn's own
+`InconsistentVersionWarning` fired on every unpickle. Fixed by regenerating
+the artifact with the pinned 1.5.2 in a clean virtualenv, so the committed
+model and the declared dependency version actually agree (held-out AUC
+unchanged at 0.823). Shipped through a feature branch + PR rather than a
+direct push to `main`, same as any change from here on.
+
 ### Experiment tracking (MLflow)
 
 `scripts/generate_synthetic_claims.py` trains one model with fixed default
